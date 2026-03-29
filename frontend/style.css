@@ -1,0 +1,96 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #0a0f1c;
+    color: white;
+}
+
+/* LOGIN */
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    text-align: center;
+}
+
+.login-card {
+    background: #111a2e;
+    padding: 30px;
+    border-radius: 20px;
+    width: 350px;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    background: #1c2541;
+    border: none;
+    color: white;
+}
+
+.login-card button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: #00f5d4;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.roles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: 10px 0;
+}
+
+/* DASHBOARD */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: #0f172a;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+.panel {
+    background: #111a2e;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.panel.large {
+    grid-column: span 1;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.card {
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.red { background: #ff4d6d; }
+.blue { background: #3a86ff; }
+.yellow { background: #ffbe0b; }
+.green { background: #06d6a0; }
+.purple { background: #8338ec; }
+
+canvas {
+    margin-top: 20px;
+}

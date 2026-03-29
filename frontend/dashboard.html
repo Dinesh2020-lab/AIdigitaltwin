@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Dialysis Digital Twin</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px;
+            margin-top: 10px;
+            background: cyan;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type=range] {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🧠 Digital Twin Dialysis System</h1>
+
+<div class="container">
+
+    <!-- LEFT SIDE -->
+    <div>
+
+        <!-- VITALS -->
+        <div class="card">
+            <h2>📊 Patient Vitals</h2>
+
+            <div class="grid">
+                <div>BP<br><span id="bp" class="value">--</span></div>
+                <div>HR<br><span id="hr" class="value">--</span></div>
+                <div>SpO2<br><span id="spo2" class="value">--</span></div>
+                <div>Temp<br><span id="temp" class="value">--</span></div>
+                <div>RR<br><span id="rr" class="value">--</span></div>
+                <div>UF<br><span id="uf" class="value">--</span></div>
+            </div>
+        </div>
+
+        <!-- ECG -->
+        <div class="card">
+            <h2>❤️ ECG Monitor</h2>
+            <canvas id="ecgChart"></canvas>
+        </div>
+
+        <!-- MACHINE CONTROL -->
+        <div class="card">
+            <h2>⚙️ Machine Controls</h2>
+
+            BFR: <span id="bfrVal">300</span>
+            <input type="range" min="100" max="500" value="300" id="bfr">
+
+            UFR: <span id="ufrVal">500</span>
+            <input type="range" min="100" max="1000" value="500" id="ufr">
+
+            Temp: <span id="tempVal">37</span>
+            <input type="range" min="35" max="40" value="37" id="tempCtrl">
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div>
+
+        <!-- SESSION -->
+        <div class="card">
+            <h2>⏱ Session</h2>
+            Time: <span id="time">0</span> min<br>
+            UF Removed: <span id="ufRemoved">0</span>
+        </div>
+
+        <!-- ALERTS -->
+        <div class="card">
+            <h2>🚨 Alerts</h2>
+            <div id="alerts"></div>
+        </div>
+
+        <!-- AI PANEL -->
+        <div class="card">
+            <h2>🤖 AI Analysis</h2>
+            <button onclick="runAI()">Analyze</button>
+            <p id="aiOutput">No data yet</p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+let vitals = {
+    systolic: 120,
+    diastolic: 80,
+    hr: 75,
+    spo2: 98,
+    temp: 37,
+    rr: 16,
+    uf: 0
+};
+
+// ECG Chart
+const ctx = document.getElementById("ecgChart");
+const ecgChart = new Chart(ctx, {
+    type: "line",
+    data: {
+        labels: Array(50).fill(""),
+        datasets: [{
+            data: Array(50).fill(0),
+            borderWidth: 2,
+        }]
+    },
+    options: {
+        animation: false,
+        scales: { y: { min: -1, max: 1 } }
+    }
+});
+
+// Update Vitals
+function updateVitals() {
+    vitals.systolic = 110 + Math.random()*20;
+    vitals.diastolic = 70 + Math.random()*10;
+    vitals.hr = 70 + Math.random()*20;
+    vitals.spo2 = 95 + Math.random()*5;
+    vitals.temp = 36 + Math.random()*2;
+    vitals.rr = 12 + Math.random()*6;
+
+    document.getElementById("bp").innerText =
+        Math.round(vitals.systolic) + "/" + Math.round(vitals.diastolic);
+
+    document.getElementById("hr").innerText = Math.round(vitals.hr);
+    document.getElementById("spo2").innerText = Math.round(vitals.spo2);
+    document.getElementById("temp").innerText = vitals.temp.toFixed(1);
+    document.getElementById("rr").innerText = Math.round(vitals.rr);
+
+    checkAlerts();
+}
+
+// ECG Simulation
+function updateECG() {
+    let data = ecgChart.data.datasets[0].data;
+    data.shift();
+    data.push(Math.sin(Date.now()/100) + Math.random()*0.2);
+    ecgChart.update();
+}
+
+// Alerts
+function checkAlerts() {
+    let alertBox = document.getElementById("alerts");
+    alertBox.innerHTML = "";
+
+    if (vitals.hr > 100)
+        alertBox.innerHTML += "⚠️ High Heart Rate<br>";
+
+    if (vitals.spo2 < 94)
+        alertBox.innerHTML += "⚠️ Low SpO2<br>";
+}
+
+// Session Timer
+let time = 0;
+setInterval(() => {
+    time++;
+    document.getElementById("time").innerText = time;
+}, 60000);
+
+// Machine Controls
+document.getElementById("bfr").oninput = e => {
+    document.getElementById("bfrVal").innerText = e.target.value;
+};
+
+document.getElementById("ufr").oninput = e => {
+    document.getElementById("ufrVal").innerText = e.target.value;
+};
+
+document.getElementById("tempCtrl").oninput = e => {
+    document.getElementById("tempVal").innerText = e.target.value;
+};
+
+// AI CALL
+function runAI() {
+    const payload = {
+        pressure: Math.round(vitals.systolic),
+        flow: Math.round(document.getElementById("bfr").value),
+        time: parseInt(document.getElementById("time").innerText)
+    };
+
+    fetch("http://127.0.0.1:8000/analyze", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("aiOutput").innerText =
+            "Risk: " + data.risk + " | Suggestion: " + data.suggestion;
+    })
+    .catch(err => {
+        console.error(err);
+        document.getElementById("aiOutput").innerText = "Backend not running";
+    });
+}
+
+// Loop
+setInterval(updateVitals, 2000);
+setInterval(updateECG, 200);
+
+</script>
+
+</body>
+</html>
+<div class="card">
+    <h2>🔬 Digital Twin</h2>
+
+    <svg width="100%" height="200">
+
+        <!-- Patient -->
+        <circle cx="80" cy="100" r="40" stroke="red" fill="none"/>
+        <text x="60" y="105" fill="white">Patient</text>
+
+        <!-- Dialyzer -->
+        <rect x="200" y="60" width="80" height="80"
+              stroke="cyan" fill="none"/>
+        <text x="205" y="105" fill="white">Dialyzer</text>
+
+        <!-- Flow line -->
+        <line x1="120" y1="100" x2="200" y2="100"
+              stroke="yellow" stroke-width="3">
+            <animate attributeName="x2"
+                     from="120" to="200"
+                     dur="1s"
+                     repeatCount="indefinite"/>
+        </line>
+
+        <!-- Output -->
+        <circle cx="340" cy="100" r="20"
+                stroke="blue" fill="none"/>
+        <text x="320" y="140" fill="white">Output</text>
+
+    </svg>
+
+    <p style="color:cyan;">SIMULATING</p>
+</div>
+<div class="card">
+    <h2>⚙️ Machine Parameters</h2>
+
+    <!-- BFR -->
+    <label>BFR: <span id="bfrVal">300</span> ml/min</label>
+    <input type="range" min="100" max="500" value="300" id="bfr">
+
+    <!-- DFR -->
+    <label>DFR: <span id="dfrVal">500</span> ml/min</label>
+    <input type="range" min="300" max="800" value="500" id="dfr">
+
+    <!-- UFR -->
+    <label>UFR: <span id="ufrVal">500</span> ml/hr</label>
+    <input type="range" min="100" max="1000" value="500" id="ufr">
+
+    <!-- TMP -->
+    <label>TMP: <span id="tmpVal">120</span> mmHg</label>
+    <input type="range" min="50" max="250" value="120" id="tmp">
+
+    <!-- Temperature -->
+    <label>Temp: <span id="tempVal">37</span> °C</label>
+    <input type="range" min="35" max="40" value="37" id="tempCtrl">
+
+    <!-- Heparin -->
+    <label>Heparin: <span id="hepVal">2</span> ml/hr</label>
+    <input type="range" min="0" max="10" value="2" id="hep">
+</div>
